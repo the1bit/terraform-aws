@@ -16,14 +16,8 @@ variable "add_image_tag" {
   default     = "prod"
 }
 
-variable "remove_image_tag" {
-  description = "Tag to be removed from the image"
+variable "reference_tag" {
+  description = "Tag to be referenced in the image"
   type        = string
-  default     = "old-tag"
-}
-
-variable "image_manifest" {
-  description = "Base64-encoded image manifest for pushing a new tag"
-  type        = string
-  default     = ""
+  default     = "2.0.0"
 }
