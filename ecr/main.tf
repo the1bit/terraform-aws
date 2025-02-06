@@ -31,12 +31,12 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
       },
       {
         rulePriority = 2
-        description  = "Keep the last 5 images with 'prod-' prefix"
+        description  = "Keep the last 3 images with 'prod-' prefix"
         selection = {
           tagStatus     = "tagged"
           tagPrefixList = ["prod-"]
           countType     = "imageCountMoreThan"
-          countNumber   = 5
+          countNumber   = 3
         }
         action = {
           type = "expire"
@@ -44,6 +44,71 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
       },
       {
         rulePriority = 3
+        description  = "Keep the latest version of images with tags starting with 0"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["0"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 4
+        description  = "Keep the latest version of images with tags starting with 1"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["1"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 5
+        description  = "Keep the latest version of images with tags starting with 2"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["2"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 6
+        description  = "Keep the latest version of images with tags starting with 3"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["3"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 7
+        description  = "Keep the latest version of images with tags starting with 4"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["4"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 1
+        }
+        action = {
+          type = "expire"
+        }
+      },
+      {
+        rulePriority = 8
         description  = "Delete all other untagged images after 1 day"
         selection = {
           tagStatus   = "untagged"
@@ -56,26 +121,13 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
         }
       },
       {
-        rulePriority = 5
+        rulePriority = 9
         description  = "Delete all other tagged images after 1 day"
         selection = {
           tagStatus   = "any"
           countType   = "sinceImagePushed"
           countUnit   = "days"
           countNumber = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 4
-        description  = "Keep the latest version of images with tags starting with numbers (0-9)"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 1
         }
         action = {
           type = "expire"
