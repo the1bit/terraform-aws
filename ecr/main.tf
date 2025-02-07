@@ -149,23 +149,44 @@ resource "null_resource" "manage_image_tags" {
   provisioner "local-exec" {
     command = <<EOT
       # Delete the existing tag if it exists
-      aws ecr batch-delete-image --repository-name ${aws_ecr_repository.repository.name} --image-ids imageTag=${var.add_image_tag} || echo "Tag not found or already removed"
+      DELETE_OUTPUT=$(aws ecr batch-delete-image --repository-name ${aws_ecr_repository.repository.name} --image-ids imageTag=${var.add_image_tag} 2>&1)
+      if echo "$DELETE_OUTPUT" | grep -q "requested image not found"; then
+        echo "Image with tag '${var.add_image_tag}' does not exist in repository"
+      else
+        echo "Existing image tag '${var.add_image_tag}' deleted successfully (if it existed)."
+      fi
 
-      # Get the image manifest and re-tag the image
-      aws ecr put-image --repository-name ${aws_ecr_repository.repository.name} \
-                        --image-tag ${var.add_image_tag} \
-                        --image-manifest "$(aws ecr batch-get-image --repository-name ${aws_ecr_repository.repository.name} \
+      # Get image manifest
+      IMAGE_MANIFEST=$(aws ecr batch-get-image --repository-name ${aws_ecr_repository.repository.name} \
                         --image-ids imageTag=${var.reference_tag} \
                         --query 'images[0].imageManifest' \
-                        --output text)" || echo "Tag already exists"
+                        --output text 2>&1)
+
+      if echo "$IMAGE_MANIFEST" | grep -q "requested image not found"; then
+        echo "ERROR: Reference image with tag '${var.reference_tag}' does not exist in repository $REPO_NAME. Cannot create new tag."
+        exit 1
+      fi
+
+      # Get the image manifest and add the protection tag
+      aws ecr put-image --repository-name ${aws_ecr_repository.repository.name} \
+                        --image-tag ${var.add_image_tag} \
+                        --image-manifest "$IMAGE_MANIFEST" 2>&1
+     if [ $? -eq 0 ]; then
+        echo "Successfully added tag '${var.add_image_tag}' to image in repository $REPO_NAME."
+      else
+        echo "Tag '${var.add_image_tag}' already exists in repository $REPO_NAME."
+      fi
+
 
      # Get the image manifest and re-tag the image
       aws ecr put-image --repository-name ${aws_ecr_repository.repository.name} \
                         --image-tag "${var.add_image_tag}-${var.reference_tag}" \
-                        --image-manifest "$(aws ecr batch-get-image --repository-name ${aws_ecr_repository.repository.name} \
-                        --image-ids imageTag=${var.reference_tag} \
-                        --query 'images[0].imageManifest' \
-                        --output text)" || echo "Tag already exists"
+                        --image-manifest "$IMAGE_MANIFEST" 2>&1
+      if [ $? -eq 0 ]; then
+        echo "Successfully added tag '${var.add_image_tag}-${var.reference_tag}' to image in repository $REPO_NAME."
+      else
+        echo "Tag '${var.add_image_tag}-${var.reference_tag}' already exists in repository $REPO_NAME."
+      fi
     EOT
   }
 
