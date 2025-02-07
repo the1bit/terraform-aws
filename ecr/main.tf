@@ -13,128 +13,130 @@ resource "aws_ecr_repository" "repository" {
 resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
   repository = aws_ecr_repository.repository.name
 
-  policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1
-        description  = "Never delete images tagged with 'prod'"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["prod"]
-          countType     = "sinceImagePushed"
-          countUnit     = "days"
-          countNumber   = 99999 # Set a very high number to effectively never expire
-        }
-        action = {
-          type = "expire"
-        }
+  policy = <<EOF
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "Never delete images tagged with 'prod'",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["prod"],
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 999999
       },
-      {
-        rulePriority = 2
-        description  = "Keep the last 3 images with 'prod-' prefix"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["prod-"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 3
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 3
-        description  = "Keep the latest version of images with tags starting with 0"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["0"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 4
-        description  = "Keep the latest version of images with tags starting with 1"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["1"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 5
-        description  = "Keep the latest version of images with tags starting with 2"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["2"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 6
-        description  = "Keep the latest version of images with tags starting with 3"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["3"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 7
-        description  = "Keep the latest version of images with tags starting with 4"
-        selection = {
-          tagStatus     = "tagged"
-          tagPrefixList = ["4"]
-          countType     = "imageCountMoreThan"
-          countNumber   = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 8
-        description  = "Delete all other untagged images after 1 day"
-        selection = {
-          tagStatus   = "untagged"
-          countType   = "sinceImagePushed"
-          countUnit   = "days"
-          countNumber = 1
-        }
-        action = {
-          type = "expire"
-        }
-      },
-      {
-        rulePriority = 9
-        description  = "Delete all other tagged images after 1 day"
-        selection = {
-          tagStatus   = "any"
-          countType   = "sinceImagePushed"
-          countUnit   = "days"
-          countNumber = 1
-        }
-        action = {
-          type = "expire"
-        }
+      "action": {
+        "type": "expire"
       }
-    ]
-  })
+    },
+    {
+      "rulePriority": 2,
+      "description": "Keep the last 3 images with 'prod-' prefix",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["prod-"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 3
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 3,
+      "description": "Keep the latest version of images with tags starting with 0",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["0"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 4,
+      "description": "Keep the latest version of images with tags starting with 1",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["1"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 5,
+      "description": "Keep the latest version of images with tags starting with 2",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["2"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 6,
+      "description": "Keep the latest version of images with tags starting with 3",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["3"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 7,
+      "description": "Keep the latest version of images with tags starting with 4",
+      "selection": {
+        "tagStatus": "tagged",
+        "tagPrefixList": ["4"],
+        "countType": "imageCountMoreThan",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 8,
+      "description": "Delete all other untagged images after 1 day",
+      "selection": {
+        "tagStatus": "untagged",
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "rulePriority": 9,
+      "description": "Delete all other tagged images after 1 day",
+      "selection": {
+        "tagStatus": "any",
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    }
+  ]
+}
+EOF
 }
 
 
