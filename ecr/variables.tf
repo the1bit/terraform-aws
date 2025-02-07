@@ -19,5 +19,5 @@ variable "add_image_tag" {
 variable "reference_tag" {
   description = "Tag to be referenced in the image"
   type        = string
-  default     = "2.0.0"
+  default     = "3.1.0"
 }
